@@ -798,6 +798,7 @@ implements SensorEventListener
       doResume();
       Log.d(TAG,"super resume");
       super.onResume();
+      setUIVisibility();
       for(Extension extension : extensions)
          extension.onResume();
    }
@@ -805,7 +806,32 @@ implements SensorEventListener
    @Override protected void onStart()
    {
       super.onStart();
+      setUIVisibility();
+      // to ensure that fullscreen is restored after the keyboard is dismissed
+      getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() 
+      {
+        @Override
+        public void onSystemUiVisibilityChange(int visibility) 
+        {
+          if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) 
+            setUIVisibility();
+        }
+      });
 
+      for(Extension extension : extensions)
+        extension.onStart();
+   }
+
+
+   @Override public void onWindowFocusChanged(boolean hasFocus) {
+      super.onWindowFocusChanged(hasFocus);
+      if (hasFocus) {
+         setUIVisibility();        
+      }
+   }
+
+
+   private void setUIVisibility() {
       ::if WIN_FULLSCREEN::
       ::if (ANDROID_TARGET_SDK_VERSION >= 19)::
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -829,9 +855,6 @@ implements SensorEventListener
       }
       ::end::
       ::end::
-
-      for(Extension extension : extensions)
-        extension.onStart();
    }
 
    @Override protected void onStop ()
