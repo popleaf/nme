@@ -1089,6 +1089,7 @@ implements SensorEventListener
    
    public static void popupKeyboard(final  int inMode, final  String inContent)
    {
+      if (activity == null || activity.mHandler == null || mContext == null) { return; }
       activity.mHandler.post(new Runnable() {
          @Override public void run()
          {
